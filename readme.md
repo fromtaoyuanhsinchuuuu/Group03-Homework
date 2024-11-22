@@ -54,7 +54,7 @@ N: <nonce>
 - 依照下列式子反覆運算
     - ![alt text](https://github.com/fromtaoyuanhsinchuuuu/Group03-Homework/blob/main/image/Hash_Function.jpg?raw=true)
     - 假設區塊中有 $k$ 個data，則 $i\ from\ 1\ to\ k+1$
-    - $d_{k+1}$ 為區塊的 Nonce，其餘 $d_i$ 就是 \<data $i$\>
+    - $d_{k+1}$ 為區塊的 Nonce，其餘 $d_i$ 就是 \<data $i$ \>
 - k+1 次運算後， $H_{k+1}$ 就是這個區塊的雜湊值
 
 註： $\oplus$ 代表 XOR、 $\ll$ 代表邏輯左移、 $mod$ 代表取模
