@@ -1,50 +1,70 @@
+import os
 import random
 
-def generate_hash(data, nonce):
-    """Custom hash function based on the problem description."""
-    hash_value = 0
-    for i, d in enumerate(data + [nonce], start=1):
-        if i % 25 == 0:
-            hash_value = ((hash_value ^ d) << 1) % (2 ** 30)
+# Function to calculate hash based on the description
+def calculate_hash(data, nonce):
+    H = 0
+    for idx, d in enumerate(data + [nonce], start=1):
+        if idx % 25 == 0:
+            H = ((H ^ d) << 1) % (2 ** 30)
         else:
-            hash_value = (hash_value ^ d) % (2 ** 30)
-    return hash_value
+            H = (H ^ d) % (2 ** 30)
+    return H
 
-def generate_block(file_name, prev_hash, data_count, is_last_block=False, introduce_error=False):
-    """Generate a single block file."""
-    data = [random.randint(0, 2 ** 30 - 1) for _ in range(data_count)]
-    nonce = 0 if is_last_block else random.randint(0, 2 ** 30 - 1)
-    hash_value = generate_hash(data, nonce)
+# Generate block content
+def generate_block(prev_hash, data_count, nonce_range):
+    data = [random.randint(1, 1000) for _ in range(data_count)]
+    nonce = random.randint(*nonce_range)
+    block_hash = calculate_hash(data, nonce)
+    return {
+        "prev_hash": prev_hash,
+        "data": data,
+        "nonce": nonce,
+        "hash": block_hash
+    }
 
-    # Introduce an error if required
-    if introduce_error:
-        if not is_last_block and random.choice([True, False]):
-            hash_value = (hash_value + 1) % (2 ** 30)  # Change hash value
-        else:
-            data[random.randint(0, data_count - 1)] += 1  # Change a data value
+# Main generator function
+def generate_test_case(input_file):
+    # Read the number of blocks and block file names from the input file
+    with open(input_file, 'r') as f:
+        lines = f.readlines()
+    num_blocks = int(lines[0].strip())
+    block_files = [line.strip() for line in lines[1:]]
+    
+    # Ensure the input file's block count matches the specified number
+    if len(block_files) != num_blocks:
+        raise ValueError(f"Input file {input_file} specifies {num_blocks} blocks, but lists {len(block_files)} filenames.")
+    
+    # Determine the number of data entries per block based on the input file name
+    if int(input_file.split('.')[0]) <= 6:  # For 2.in to 6.in
+        data_count_range = (1, 24)
+    else:  # For 7.in to 11.in
+        data_count_range = (25, 1000)
+    
+    # Generate blocks
+    prev_hash = 0
+    for i, block_file in enumerate(block_files):
+        # Determine the number of data entries in the block
+        data_count = random.randint(*data_count_range)
+        
+        # Last block always has nonce = 0
+        nonce_range = (1, 1000) if i < len(block_files) - 1 else (0, 0)
+        
+        # Generate block content
+        block = generate_block(prev_hash, data_count, nonce_range)
+        
+        # Write block to file
+        with open(block_file, 'w') as f:
+            f.write(f"P: {prev_hash}\n")
+            for idx, d in enumerate(block["data"], start=1):
+                f.write(f"{idx}: {d}\n")
+            f.write(f"N: {block['nonce']}\n")
+        
+        # Update prev_hash for the next block
+        prev_hash = block["hash"]
 
-    with open(file_name, "w") as f:
-        f.write(f"P: {prev_hash}\n")
-        for idx, d in enumerate(data, start=1):
-            f.write(f"{idx}: {d}\n")
-        f.write(f"N: {nonce}\n")
-    return hash_value
-
-def generate_testcases(start, end):
-    """Generate test cases and write them into .in files."""
-    for test_id in range(start, end + 1):
-        block_count = random.randint(2, 20) if test_id < 7 else random.randint(2, 20)
-        introduce_error_in = random.choice([None, random.randint(1, block_count - 1)])
-        with open(f"{test_id}.in", "w") as test_file:
-            test_file.write(f"{block_count}\n")
-            prev_hash = 0
-            for block_num in range(1, block_count + 1):
-                file_name = f"block_{test_id}_{block_num}.txt"
-                is_last_block = (block_num == block_count)
-                introduce_error = (introduce_error_in == block_num)
-                prev_hash = generate_block(file_name, prev_hash, random.randint(1, 24 if test_id < 7 else 50), is_last_block, introduce_error)
-                test_file.write(file_name + "\n")
-
-# Generate test cases 2.in to 11.in
-generate_testcases(2, 11)
-
+# Generate test cases for 2.in to 11.in
+for i in range(2, 12):
+    input_file = f"{i}.in"
+    print(f"Generating blocks for {input_file}...")
+    generate_test_case(input_file)

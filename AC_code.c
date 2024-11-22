@@ -1,9 +1,9 @@
 #include <stdio.h>
-// #include <stdlib.h>
-// #include <string.h>
 
 #define MAX_BLOCKS 25
-#define MAX_LINE_LENGTH 20
+#define MAX_BLOCK_NAME 20
+#define MAX_DATA_NUM 1024
+#define MAX_LINE_LENGTH 30
 
 unsigned int compute_hash(const int *data, int size) {
     unsigned int h = 0;
@@ -47,7 +47,7 @@ int parse_block_file(const char *filename, unsigned int *previous_hash, int *dat
 
 int main() {
     int n;
-    char filenames[MAX_BLOCKS][MAX_LINE_LENGTH];
+    char filenames[MAX_BLOCKS][MAX_BLOCK_NAME];
 
     // 讀取輸入
     scanf("%d", &n);
@@ -58,7 +58,7 @@ int main() {
     unsigned int previous_hash = 0;
     for (int i = 0; i < n; i++) {
         unsigned int expected_previous_hash = previous_hash;
-        int data[MAX_BLOCKS], nonce = 0, data_size = 0;
+        int data[MAX_DATA_NUM], nonce = 0, data_size = 0;
 
         if (parse_block_file(filenames[i], &previous_hash, data, &nonce, &data_size) == -1) {
             return 1; // 文件讀取失敗
