@@ -1,2 +1,3 @@
-# Team03_hw
-team03 hw
+# Group03 homework
+Group03 homework
+
