@@ -13,7 +13,7 @@ def calculate_hash(data, nonce):
 
 # Generate block content
 def generate_block(prev_hash, data_count, nonce_range):
-    data = [random.randint(1, 1000) for _ in range(data_count)]
+    data = [random.randint(1, 2 ** 30) for _ in range(data_count)]
     nonce = random.randint(*nonce_range)
     block_hash = calculate_hash(data, nonce)
     return {
@@ -48,7 +48,7 @@ def generate_test_case(input_file):
         data_count = random.randint(*data_count_range)
         
         # Last block always has nonce = 0
-        nonce_range = (1, 1000) if i < len(block_files) - 1 else (0, 0)
+        nonce_range = (1, 2 ** 30) if i < len(block_files) - 1 else (0, 0)
         
         # Generate block content
         block = generate_block(prev_hash, data_count, nonce_range)
