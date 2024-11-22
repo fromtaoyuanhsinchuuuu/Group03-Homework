@@ -8,6 +8,8 @@
 註：故事中的布拉格為虛構城市，與捷克首都布拉格並無任何關係
 
 ### 布拉格錢（Block Chain）數位帳本簡介
+![Block_Chain](https://github.com/fromtaoyuanhsinchuuuu/Group03-Homework/blob/main/image/Block_Chain.jpeg?raw=true)
+
 一條區塊鏈是由數個區塊(block)組成，每個區塊內容須包含三個部份：前一個區塊的雜湊值(previous hash)、數筆資料(data)、以及特殊數字 Nonce。
 
 previous hash 是形成鏈狀結構的關鍵。在題目中，我們假設 previous hash 是不能被任何人改變的（包括故事中竄改資料的駭客），故 previous hash 可以用來驗證前一個區塊的資料是否正確。
@@ -19,7 +21,7 @@ data 在我們的題目只會以數字的型態存在，以方便計算區塊的
 一個區塊的雜湊值是根據區塊內容及使用的雜湊函數決定的，在此我們將用文字檔案模擬區塊（一個文字檔案代表一個區塊）、並使用自定義的雜湊函數（詳見下方雜湊函數），進行布拉格錢數位帳本的驗證與偵錯。
 
 ### 題目敘述
-給定數字 $n$，代表有 $n$ 個區塊檔案 (block_$i$\_$1$.txt, block_$i$\_$2$.txt, ..., block_$i$\_$n$.txt)，請檢查並驗證數位帳本中區塊的 hash 以及 previous hash 是否正確。
+給定數字 $n$，代表有 $n$ 個區塊檔案 (block_i_1.txt, block_i_2.txt, ..., block_i_n.txt)，請檢查並驗證數位帳本中區塊的 hash 以及 previous hash 是否正確。
 
 如果某個區塊的資料有被竄改，那麼區塊算出的 hash 與下一個區塊的 previous hash 將會不一致（忽略資料竄改後，雜湊值相同的情況），請以此為原則進行驗證。若有錯誤，請輸出第一個出錯的區塊號碼；若沒有錯誤，輸出 -1。
 
@@ -28,7 +30,7 @@ data 在我們的題目只會以數字的型態存在，以方便計算區塊的
 $Hint$: 題目只要求驗證，不需要（應該也無法）修復資料，故請不要對檔案做任何寫入的動作
 
 ### 檔案格式
-檔名固定為 block_$i$_$j$.txt，其中 $i$ 為測資的編號，$j$ 為區塊的編號
+檔名固定為 block_i_j.txt，其中 i 為測資的編號， j 為區塊的編號
 檔案內容格式如下
 ```
 P: <pre-hash>
@@ -50,20 +52,16 @@ N: <nonce>
 雜湊函數定義如下，將區塊的所有 data 以及 Nonce 進行運算即可得到區塊的雜湊值（不會使用到 previous hash）
 - 初始 $H_0=0$
 - 依照下列式子反覆運算
-\begin{cases}
-H_i = ((H_{i-1} \oplus d_i)\ll 1) \mod 2^{30}\ ,\; i\ 為\ 25\ 的倍數 \\
-\\
-H_i = (H_{i-1} \oplus d_i) \mod 2^{30}\ \ \ \ \ \ \ \ \ \ \ \ ,\; other
-\end{cases}
+    - ![alt text](https://github.com/fromtaoyuanhsinchuuuu/Group03-Homework/blob/main/image/Hash_Function.jpg?raw=true)
     - 假設區塊中有 $k$ 個data，則 $i\ from\ 1\ to\ k+1$
     - $d_{k+1}$ 為區塊的 Nonce，其餘 $d_i$ 就是 \<data $i$\>
 - k+1 次運算後， $H_{k+1}$ 就是這個區塊的雜湊值
 
-註：$\oplus$ 代表 XOR、$\ll$ 代表邏輯左移、$mod$ 代表取模
+註： $\oplus$ 代表 XOR、 $\ll$ 代表邏輯左移、 $mod$ 代表取模
 
 ### Input Format
 第一行只有一個數字 $n$，代表有 $n$ 個區塊檔案
-接著 $n$ 行是檔案名稱，block_$i$\_$j$.txt ($j\ from\ 1\ to\ n$)，我們保證檔名會照順序排好
+接著 $n$ 行是檔案名稱，block_i_j.txt ( j $from\ 1\ to\ n$ )，我們保證檔名會照順序排好
 ```
 n
 block_i_1.txt
@@ -88,7 +86,9 @@ block_i_n.txt
 
 ### Constrain
 $1 \leq n \leq 20$
+
 $1 \leq k \lt 1000,\; for\ all\ blocks$
+
 $0 \leq previous\ hash,\ data,\ Nonce \lt 2^{30}$
 
 
@@ -138,9 +138,13 @@ N: 0
 -1
 ```
 此範例中所有區塊的資料數都不超過 25，所以還不會用到邏輯左移($\ll$)
+
 區塊 1 的雜湊值為 $10\ \oplus\ 20\ \oplus\ 31\ \oplus\ 42 =43$，正好是區塊 2 的 previous hash
+
 區塊 2 的雜湊值為 $15\ \oplus\ 25\ \oplus\ 35\ \oplus\ 57 =12$，正好是區塊 3 的 previous hash
+
 區塊 3 為最後一個區塊，不須驗證
+
 所有區塊都通過驗證，故輸出 -1
 
 
@@ -185,6 +189,9 @@ N: 0
 2
 ```
 此範例中所有區塊的資料數都不超過 25，所以還不會用到邏輯左移($\ll$)
+
 區塊 1 的雜湊值為 $100\ \oplus\ 20\ \oplus\ 31\ \oplus\ 42 =69$，正好是區塊 2 的 previous hash
+
 區塊 2 的雜湊值為 $15\ \oplus\ 25\ \oplus\ 45\ \oplus\ 67 = 120$，與區塊 3 的 previous hash 不同
+
 區塊 2 並未通過驗證，故輸出 2
