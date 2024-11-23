@@ -2,22 +2,9 @@
 
 #define MAX_BLOCKS 25
 #define MAX_BLOCK_NAME 20
-#define MAX_DATA_NUM 1024
 #define MAX_LINE_LENGTH 30
 
-unsigned int compute_hash(const int *data, int size) {
-    unsigned int h = 0;
-    for (int i = 0; i < size; i++) {
-        if ((i + 1) % 25 == 0) {
-            h = (((h ^ data[i]) << 1) & 0x3FFFFFFF); // 左移 1 位後取模 2^30
-        } else {
-            h = (h ^ data[i]) & 0x3FFFFFFF; // 僅取低 30 位
-        }
-    }
-    return h;
-}
-
-int parse_block_file(const char *filename, unsigned int *previous_hash, int *data, int *nonce, int *data_size) {
+int parse_block_file(const char *filename, unsigned int *previous_hash) {
     FILE *file = fopen(filename, "r");
     if (!file) {
         fprintf(stderr, "Error opening file: %s\n", filename);
@@ -26,6 +13,7 @@ int parse_block_file(const char *filename, unsigned int *previous_hash, int *dat
 
     char line[MAX_LINE_LENGTH];
     int line_number = 0;
+    unsigned int h = 0;
 
     while (fgets(line, MAX_LINE_LENGTH, file)) {
         line_number++;
@@ -34,15 +22,22 @@ int parse_block_file(const char *filename, unsigned int *previous_hash, int *dat
         } else if (line[0] >= '1' && line[0] <= '9') {
             int value;
             sscanf(line, "%*d: %d", &value);
-            data[*data_size] = value;
-            (*data_size)++;
+            if ((line_number - 1) % 25 == 0)
+                h = (((h ^ value) << 1) & 0x3FFFFFFF); // 左移 1 位後取模 2^30
+            else
+                h = (h ^ value) & 0x3FFFFFFF; // 僅取低 30 位
         } else if (line[0] == 'N') {
-            sscanf(line, "N: %d", nonce);
+            int nonce;
+            sscanf(line, "N: %d", &nonce);
+            if ((line_number - 1) % 25 == 0)
+                h = (((h ^ nonce) << 1) & 0x3FFFFFFF); // 左移 1 位後取模 2^30
+            else
+                h = (h ^ nonce) & 0x3FFFFFFF; // 僅取低 30 位
         }
     }
 
     fclose(file);
-    return 0;
+    return h;
 }
 
 int main() {
@@ -58,20 +53,13 @@ int main() {
     unsigned int previous_hash = 0;
     for (int i = 0; i < n; i++) {
         unsigned int expected_previous_hash = previous_hash;
-        int data[MAX_DATA_NUM], nonce = 0, data_size = 0;
+        unsigned int current_hash;
 
-        if (parse_block_file(filenames[i], &previous_hash, data, &nonce, &data_size) == -1) {
+        current_hash = parse_block_file(filenames[i], &previous_hash);
+        if (current_hash == -1) {
             return 1; // 文件讀取失敗
         }
 
-        // 添加 Nonce 作為最後一筆資料
-        data[data_size] = nonce;
-        data_size++;
-
-        // 計算當前區塊的 hash
-        unsigned int current_hash = compute_hash(data, data_size);
-
-        // 比較 hash 值
         if (expected_previous_hash != previous_hash) {
             printf("%d\n", i);
             return 0;
@@ -80,7 +68,6 @@ int main() {
         previous_hash = current_hash;
     }
 
-    // 所有區塊皆正確
     printf("-1\n");
     return 0;
 }
