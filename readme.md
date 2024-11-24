@@ -1,5 +1,5 @@
 # 布拉格錢數位帳本-正式啟用
-English version is translated by ChatGPT. We're sorry that our English is not good enough to make sure all of the English content is right.
+The English version was translated by ChatGPT. We have done our best to maintain the accuracy of the problem description to ensure that you will not misunderstand the requirements.
 
 ### 故事  Story
 「衝鋒！」一向是布拉格市民面對科技發展的口號，在環境保育意識抬頭的風氣之下，當代的布拉格市長打算將當地貨幣"布拉格錢"進行數位化，運用共同帳本紀錄所有市民的財產，以減少印刷實體紙幣的數量，達到愛護環境的效果。
@@ -32,7 +32,7 @@ data 在我們的題目只會以數字的型態存在，以方便計算區塊的
 
 A blockchain consists of several blocks. Each block contains three parts: the hash of the previous block (`previous hash`), a set of data (`data`), and a special number (`Nonce`).
 
-The `previous hash` is the key to forming the chain structure. In this problem, we assume the `previous hash` cannot be altered by anyone (including hackers tampering with the data in the story). Thus, the `previous hash` can be used to verify whether the data in the previous block is correct.
+The `previous hash` is the key to forming the chain structure. In this problem, we assume the `previous hash` cannot be altered by anyone (including hackers tampering with the data in the story). Thus, the `previous hash` can be used to verify whether the content in the previous block is correct.
 
 The `data` in this problem is represented solely by numbers for easier calculation of block hashes. We guarantee that each block will have at least one data entry.
 
@@ -42,32 +42,28 @@ A block's hash value is determined by its content and the hashing function used.
 
 
 ### 題目敘述  Problem Description
-給定數字 $n$，代表有 $n$ 個區塊檔案 (`block_i_1.txt`, `block_i_2.txt`, ..., `block_i_n.txt`)，請檢查並驗證數位帳本中區塊的 hash 以及 previous hash 是否正確。
+給定數字 $n$，以及 $n$ 個區塊檔案名稱 (`block_i_1.txt`, `block_i_2.txt`, ..., `block_i_n.txt`)，請檢查並驗證數位帳本中區塊的 hash 以及 previous hash 是否正確。
 
 如果某個區塊的資料有被竄改，那麼區塊算出的 hash 與下一個區塊的 previous hash 將會不一致（忽略資料竄改後，雜湊值相同的情況），請以此為原則進行驗證。若有錯誤，請輸出第一個出錯的區塊號碼；若沒有錯誤，輸出 -1。
 
 另外，因為最後一個區塊沒有對應的 previous hash 可供驗證，所以我們假設最後一個區塊的資料一定沒經過竄改，可以忽略。
 
-$Hint$: 題目只要求驗證，不需要（應該也無法）修復資料，故請不要對檔案做任何寫入的動作
+**注意：** 題目只要求驗證，不需要（應該也無法）修復資料，故請不要對檔案做任何寫入的動作
 
 
-Given a number $n$, which represents $n$ block files (`block_i_1.txt`, `block_i_2.txt`, ..., `block_i_n.txt`), verify and validate whether the hashes and `previous hashes` in the digital ledger blocks are correct.
+Given a number $n$, and the name of $n$ block files (`block_i_1.txt`, `block_i_2.txt`, ..., `block_i_n.txt`), verify and validate whether the hashes and `previous hashes` in the digital ledger blocks are correct.
 
 If a block’s data has been tampered with, the calculated hash of the block will not match the `previous hash` in the subsequent block (ignoring cases where the tampered data coincidentally results in the same hash). Verify the ledger according to this principle. If an error is found, output the index of the first faulty block. If no errors are found, output -1.
 
 Additionally, since the last block does not have a `previous hash` for verification, assume that the last block's data has not been tampered with and can be ignored.
 
-*Hint*: The task only requires verification. You do not need (and likely cannot) fix the data, so do not perform any write operations on the files.
+**Note:** The task only requires verification. You do not need (and likely cannot) fix the data, so do not perform any write operations on the files.
 
 
 ### 檔案格式  File Format
-檔名固定為 `block_i_j.txt`，其中 i 為測資的編號， j 為區塊的編號
+檔名固定為 `block_i_j.txt`，其中 i 為測資的編號， j 為區塊的編號。檔案內容格式如下
 
-檔案內容格式如下
-
-File names follow the format `block_i_j.txt`, where i is the testcase number, and j is the block number.
-
-File content format:
+File names follow the format `block_i_j.txt`, where i is the testcase number, and j is the block number. File content format:
 ```
 P: <pre-hash>
 1: <data 1>
@@ -77,17 +73,19 @@ P: <pre-hash>
 k: <data k>
 N: <nonce>
 ```
+- 檔案中所有數字皆以十進位表示，請注意冒號後面的空格
 - 第一行 P 後面的數字是 previous hash，為上一個區塊的雜湊值
     - 第一個區塊的 P 必為 0
 - 最後一行 N 後面的數字是 Nonce，用以計算或改變這個區塊的雜湊值 (詳見下方雜湊函數)
     - 最後一個區塊的 Nonce 必為 0
 - 剩下的部份是區塊中的 data，開頭會按照順序編號（如上方範例中 $1\ to\ k$）
     - 我們保證一個區塊至少會有一個 data
-- The number after `P:` is the `previous hash` of the block, which is the hash of the previous block.
+- All numbers in the file are represented in decimal format. And please pay attention to the space after the colon.
+- At the First line, the number after `P:` is the `previous hash` of the block, which is the hash of the previous block.
     - The `P:` of the first block will always be 0.
-- The number after `N:` is the `Nonce`, used to compute or modify the block's hash value (see the hashing function below).
+- At the last line, the number after `N:` is the `Nonce`, used to compute or modify the block's hash value (see the hashing function below).
     - The `Nonce` of the last block will always be 0.
-- The rest of the file contains the block's `data`, numbered sequentially.
+- The rest of the file contains the block's `data`, prefix numbered sequentially (e.g., from $1$ to $k$ as shown in the example above)..
     - Each block is guaranteed to have at least one data entry.
 
 ### 雜湊（Hash）函數  Hash Function
@@ -135,7 +133,7 @@ block_i_n.txt
 ### Output Format
 輸出只有一個數字
 
-如果發現錯誤，輸出第一個出錯（號碼最小）的區塊檔案號碼
+如果發現錯誤，輸出第一個出錯的區塊檔案號碼
 
 The output is a single number:
 
@@ -157,14 +155,16 @@ Do not modify the content of the files. File content must remain the same before
 ### Constrain
 $1 \leq n \leq 20$
 
-$1 \leq k \lt 1000,\ for\ all\ blocks$
+$1 \leq k \leq 1000,\ for\ all\ blocks$
 
 $0 \leq previous\ hash,\ data,\ Nonce \lt 2^{30}$
 
 
 ### Taskcase Group
-- **Subtask 0~6 (50 point)**
-    - $1 \leq k \lt 25,\ for\ all\ blocks$
+- **Subtask 0~1 (0 point)**
+    - Sample Testcases
+- **Subtask 2~6 (50 point)**
+    - $1 \leq k \leq 25,\ for\ all\ blocks$
 - **Subtask 7~11 (50 point)**
     - $no\ other\ constrain$
 
